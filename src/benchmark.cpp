@@ -64,42 +64,6 @@ std::uint64_t naive( const char* first, const char* last )
   return result;
 }
 
-std::uint64_t std_pow( const char* first, const char* last )
-{
-  std::uint64_t result( 0 );
-  
-  for( std::uint64_t i( last - first - 1 ); first != last; ++first, --i )
-    {
-      enforce( ( *first >= '0' ) && ( *first <= '9' ) );
-      result += std::pow( 10, i ) * ( *first - '0' );
-    }
-
-  return result;
-}
-
-std::uint64_t pow10( std::uint64_t p )
-{
-  std::uint64_t result( 1 );
-
-  for ( ; p != 0; --p )
-    result *= 10;
-
-  return result;
-}
-
-std::uint64_t custom_pow( const char* first, const char* last )
-{
-  std::uint64_t result( 0 );
-  
-  for( std::uint64_t i( last - first - 1 ); first != last; ++first, --i )
-    {
-      enforce( ( *first >= '0' ) && ( *first <= '9' ) );
-      result += pow10( i ) * ( *first - '0' );
-    }
-
-  return result;
-}
-
 std::uint64_t table_pow( const char* first, const char* last )
 {
   static const std::uint64_t pow10[ 20 ] =
@@ -189,61 +153,6 @@ std::uint64_t unrolled_4( const char* first, const char* last )
 
   return result;
 }
-std::uint64_t exploded( const char* first, const char* last )
-{
-  static const std::uint64_t pow10[ 20 ] =
-    {
-      1ull,
-      10ull,
-      100ull,
-      1000ull,
-      10000ull,
-      100000ull,
-      1000000ull,
-      10000000ull,
-      100000000ull,
-      1000000000ull,
-      10000000000ull,
-      100000000000ull,
-      1000000000000ull,
-      10000000000000ull,
-      100000000000000ull,
-      1000000000000000ull,
-      10000000000000000ull,
-      100000000000000000ull,
-      1000000000000000000ull,
-      10000000000000000000ull
-    };
-
-  assert( last > first );
-  assert( last - first <= 20 );
-  
-  const std::uint64_t count( last - first );
-  
-  for( std::uint64_t i( 0 ); i != count; ++i )
-    enforce( first[ i ] >= '0' );
-  
-  for( std::uint64_t i( 0 ); i != count; ++i )
-    enforce( first[ i ] <= '9' );
-  
-  std::array< std::uint64_t, 20 > digits;
-
-  for( std::uint64_t i( 0 ); i != count; ++i )
-    digits[ i ] = *( last - i - 1 ) - '0';
-  
-  std::array< std::uint64_t, 20 > powers;
-
-  for( std::uint64_t i( 0 ); i != count; ++i )
-    powers[ i ] = pow10[ i ] * digits[ i ];
-  
-  std::uint64_t result( 0 );
-
-  for ( std::uint64_t i( 0 ); i != count; ++i )
-    result += powers[ i ];
-
-  return result;
-}
-
 typedef std::array< std::uint64_t, 20 > time_per_length;
 
 struct bench_result
@@ -339,12 +248,6 @@ bench( std::uint64_t runs, const std::vector< std::string >& words )
   std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
             << '\n';
   
-  std::cout << "custom-pow ";
-  start = std::chrono::high_resolution_clock::now();
-  result.time[ "custom-pow" ] = run_benchmark< &custom_pow >( runs, words );
-  std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
-            << '\n';
-  
   std::cout << "table-pow ";
   start = std::chrono::high_resolution_clock::now();
   result.time[ "table-pow" ] = run_benchmark< &table_pow >( runs, words );
@@ -354,12 +257,6 @@ bench( std::uint64_t runs, const std::vector< std::string >& words )
   std::cout << "unrolled-4 ";
   start = std::chrono::high_resolution_clock::now();
   result.time[ "unrolled-4" ] = run_benchmark< &unrolled_4 >( runs, words );
-  std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
-            << '\n';
-  
-  std::cout << "exploded ";
-  start = std::chrono::high_resolution_clock::now();
-  result.time[ "exploded" ] = run_benchmark< &exploded >( runs, words );
   std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
             << '\n';
   
