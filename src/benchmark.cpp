@@ -431,14 +431,14 @@ void generate_plot_files( const bench_result& r, std::uint64_t runs )
     << " runs, baseline=std::strtoul)\"\n";
   f << "set xrange [ 0 : 21 ]\n";
   f << "set key outside center bottom horizontal Left reverse\n";
-  f << "set ytics nomirror\n";
-  f << "set y2tics format \"%.0s*10.%T\"\n";
-  f << "set y2label \"duration s.\n";
   f << '\n';
-  f << "plot \"baseline.data\" axes x1y2 title \"baseline time\" with lines"
-    << " dashtype 2";
+
+  auto it( r.time.begin() );
+
+  f << "plot \"atoi-" + it->first + ".data\" title \"" + it->first
+    + "\" with linespoints ps 2";
   
-  for ( auto it( r.time.begin() ); it != r.time.end(); ++it )
+  for ( ++it; it != r.time.end(); ++it )
     {
       f << ",\\\n    \"atoi-" + it->first + ".data\" title \"" + it->first
         + "\" with linespoints ps 2";
