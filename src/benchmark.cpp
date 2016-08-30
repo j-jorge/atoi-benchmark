@@ -1,3 +1,12 @@
+#include "do_not_optimize_away.hpp"
+#include "c_strtoul.hpp"
+#include "std_strtoul.hpp"
+#include "boost_lexical_cast.hpp"
+#include "naive.hpp"
+#include "recursive.hpp"
+#include "table_pow.hpp"
+#include "unrolled_4.hpp"
+
 #include <boost/lexical_cast.hpp>
 
 #include <cstdlib>
@@ -7,152 +16,6 @@
 #include <random>
 #include <unordered_map>
 
-void enforce( bool b )
-{
-  if ( !b )
-    throw std::range_error( "ehm" );
-}
-
-template <class T>
-void do_not_optimize_away(T&& datum)
-{
-  if (getpid() == 1)
-    {
-      const void* p = &datum;
-      putchar(*static_cast<const char*>(p));
-    }
-}
-
-std::uint64_t from_lib( const char* first, const char* last )
-{
-  char* end;
-  return std::strtoul( first, &end, 10 );
-}
-
-std::uint64_t from_clib( const char* first, const char* last )
-{
-  char* end;
-  return ::strtoul( first, &end, 10 );
-}
-
-std::uint64_t from_boost( const char* first, const char* last )
-{
-  return boost::lexical_cast< std::uint64_t >( first );
-}
-
-std::uint64_t recursive( const char* first, const char* last )
-{
-  if ( first == last )
-    return 0;
-
-  --last;
-  enforce( ( *last >= '0' ) && ( *last <= '9' ) );
-
-  return 10 * recursive( first, last ) + ( *last - '0' );
-}
-
-std::uint64_t naive( const char* first, const char* last )
-{
-  std::uint64_t result( 0 );
-
-  for( ; first != last; ++first )
-    {
-      enforce( ( *first >= '0' ) && ( *first <= '9' ) );
-      result = result * 10 + ( *first - '0' );
-    }
-
-  return result;
-}
-
-std::uint64_t table_pow( const char* first, const char* last )
-{
-  static const std::uint64_t pow10[ 20 ] =
-    {
-      10000000000000000000ull,
-      1000000000000000000ull,
-      100000000000000000ull,
-      10000000000000000ull,
-      1000000000000000ull,
-      100000000000000ull,
-      10000000000000ull,
-      1000000000000ull,
-      100000000000ull,
-      10000000000ull,
-      1000000000ull,
-      100000000ull,
-      10000000ull,
-      1000000ull,
-      100000ull,
-      10000ull,
-      1000ull,
-      100ull,
-      10ull,
-      1ull
-    };
-  std::uint64_t result( 0 );
-  
-  for( std::uint64_t i( 20 - ( last - first ) ); first != last; ++first )
-    {
-      enforce( ( *first >= '0' ) && ( *first <= '9' ) );
-      result += pow10[ i++ ] * ( *first - '0' );
-    }
-
-  return result;
-}
-
-std::uint64_t unrolled_4( const char* first, const char* last )
-{
-  static const std::uint64_t pow10[ 20 ] =
-    {
-      10000000000000000000ull,
-      1000000000000000000ull,
-      100000000000000000ull,
-      10000000000000000ull,
-      1000000000000000ull,
-      100000000000000ull,
-      10000000000000ull,
-      1000000000000ull,
-      100000000000ull,
-      10000000000ull,
-      1000000000ull,
-      100000000ull,
-      10000000ull,
-      1000000ull,
-      100000ull,
-      10000ull,
-      1000ull,
-      100ull,
-      10ull,
-      1ull
-    };
-  std::uint64_t result( 0 );
-  std::uint64_t i( 20 - ( last - first ) );
-
-  for( ; last - first >= 4; first += 4 )
-    {
-      enforce( ( first[ 0 ] >= '0' ) && ( first[ 0 ] <= '9' ) );
-      const std::uint64_t r1( pow10[ i++ ] * ( first[ 0 ] - '0' ) );
-
-      enforce( ( first[ 1 ] >= '0' ) && ( first[ 1 ] <= '9' ) );
-      const std::uint64_t r2( pow10[ i++ ] * ( first[ 1 ] - '0' ) );
-      
-      enforce( ( first[ 2 ] >= '0' ) && ( first[ 2 ] <= '9' ) );
-      const std::uint64_t r3( pow10[ i++ ] * ( first[ 2 ] - '0' ) );
-      
-      enforce( ( first[ 3 ] >= '0' ) && ( first[ 3 ] <= '9' ) );
-      const std::uint64_t r4( pow10[ i++ ] * ( first[ 3 ] - '0' ) );
-
-      result += r1 + r2 + r3 + r4;
-    }
-
-  for( ; first != last; ++first )
-    {
-      enforce( ( *first >= '0' ) && ( *first <= '9' ) );
-      result += pow10[ i++ ] * ( *first - '0' );
-    }
-
-  return result;
-}
 typedef std::array< std::uint64_t, 20 > time_per_length;
 
 struct bench_result
@@ -165,7 +28,7 @@ template< typename std::uint64_t (*F)( const char* first, const char* last ) >
 void run_benchmark( std::uint64_t runs, const char* first, const char* last )
 {
 #ifndef NDEBUG
-  const std::uint64_t ref( from_lib( first, last ) );
+  const std::uint64_t ref( std_strtoul( first, last ) );
   const std::uint64_t tested( F( first, last ) );
 
   if ( ref != tested )
@@ -218,21 +81,21 @@ bench( std::uint64_t runs, const std::vector< std::string >& words )
 
   std::cout << "std::strtoul ";
   auto start( std::chrono::high_resolution_clock::now() );
-  result.baseline = run_benchmark< &from_lib >( runs, words );
+  result.baseline = run_benchmark< &std_strtoul >( runs, words );
   result.time[ "std::strtoul" ] = result.baseline;
   std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
             << '\n';
   
   std::cout << "strtoul ";
   start = std::chrono::high_resolution_clock::now();
-  result.time[ "strtoul" ] = run_benchmark< &from_clib >( runs, words );
+  result.time[ "strtoul" ] = run_benchmark< &c_strtoul >( runs, words );
   std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
             << '\n';
 
   std::cout << "boost::lexical-cast ";
   start = std::chrono::high_resolution_clock::now();
   result.time[ "boost::lexical-cast" ] =
-    run_benchmark< &from_boost >( runs, words );
+    run_benchmark< &boost_lexical_cast >( runs, words );
   std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
             << '\n';
   
