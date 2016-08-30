@@ -8,14 +8,16 @@ CMAKE_BUILD_TYPE :=
 
 ifeq ($(BUILD),release)
   CMAKE_BUILD_TYPE := release
+  BUILD_DIR := build/release
 else ifeq ($(BUILD),profile)
   CMAKE_BUILD_TYPE := release
   CXXFLAGS += -pg
+  BUILD_DIR := build/profile
 else
   CMAKE_BUILD_TYPE := debug
+  BUILD_DIR := build/debug
 endif
 
-BUILD_DIR := build/$(CMAKE_BUILD_TYPE)
 CMAKE_ARGS := -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 
 
@@ -34,9 +36,9 @@ $(BUILD_DIR):
 	[ -d $(BUILD_DIR) ] || mkdir -p $(BUILD_DIR)
 
 plot: benchmark
-	mkdir -p output
-	$(BUILD_DIR)/benchmark $(RUNS)
-	cd output; echo 'load "atoi.plot"' | gnuplot
+	mkdir -p $(BUILD_DIR)/output
+	cd $(BUILD_DIR) && ./benchmark $(RUNS)
+	cd $(BUILD_DIR)/output; echo 'load "atoi.plot"' | gnuplot
 
 clear:
 	rm -f -r output bin
