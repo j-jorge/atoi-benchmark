@@ -20,7 +20,6 @@ endif
 
 CMAKE_ARGS := -DCMAKE_BUILD_TYPE=$(CMAKE_BUILD_TYPE)
 
-
 benchmark: .cmake
 	cd $(BUILD_DIR) && $(MAKE)
 
@@ -36,9 +35,13 @@ $(BUILD_DIR):
 	[ -d $(BUILD_DIR) ] || mkdir -p $(BUILD_DIR)
 
 plot: benchmark
-	mkdir -p $(BUILD_DIR)/output
-	cd $(BUILD_DIR) && ./benchmark $(RUNS)
-	cd $(BUILD_DIR)/output; echo 'load "atoi.plot"' | gnuplot
+	mkdir -p $(BUILD_DIR)/benchmark-plot/output
+	cd $(BUILD_DIR)/benchmark-plot && ../benchmark $(RUNS)
+	cd $(BUILD_DIR)/benchmark-plot/output; echo 'load "atoi.plot"' | gnuplot
+	mkdir -p $(BUILD_DIR)/all-in-one-plot/output
+	cd $(BUILD_DIR)/all-in-one-plot && ../all-in-one-benchmark $(RUNS)
+	cd $(BUILD_DIR)/all-in-one-plot/output; echo 'load "atoi.plot"' \
+	  | gnuplot
 
 clear:
 	rm -f -r output bin

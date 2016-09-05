@@ -20,3 +20,11 @@ add_executable(
   )
 
 target_include_directories( benchmark PUBLIC include )
+
+add_executable(
+  all-in-one-benchmark
+
+  src/all-in-one.cpp
+  )
+
+target_include_directories( all-in-one-benchmark PUBLIC include src )
