@@ -1,9 +1,11 @@
 project( atoi-benchmark )
-cmake_minimum_required( VERSION 3.5 )
+cmake_minimum_required( VERSION 3.0 )
 
 if( ${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR} )
   message( FATAL_ERROR "In-source builds are not allowed." )
 endif()
+
+find_package( Boost 1.42 REQUIRED )
 
 add_executable(
   benchmark
@@ -19,7 +21,12 @@ add_executable(
   src/unrolled_4.cpp
   )
 
-target_include_directories( benchmark PUBLIC include )
+target_include_directories(
+  benchmark
+  PUBLIC
+  include
+  ${Boost_INCLUDE_DIRS}
+)
 
 add_executable(
   all-in-one-benchmark
@@ -27,4 +34,10 @@ add_executable(
   src/all-in-one.cpp
   )
 
-target_include_directories( all-in-one-benchmark PUBLIC include src )
+target_include_directories(
+  all-in-one-benchmark
+  PUBLIC
+  include
+  src
+  ${Boost_INCLUDE_DIRS}
+)
