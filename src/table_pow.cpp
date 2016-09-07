@@ -30,8 +30,9 @@ std::uint64_t table_pow( const char* first, const char* last )
   
   for( std::uint64_t i( 20 - ( last - first ) ); first != last; ++first )
     {
-      enforce( ( *first >= '0' ) && ( *first <= '9' ) );
-      result += pow10[ i++ ] * ( *first - '0' );
+      const auto d( unsigned( *first ) - '0' );
+      enforce( d < 10 );
+      result += pow10[ i++ ] * d;
     }
 
   return result;

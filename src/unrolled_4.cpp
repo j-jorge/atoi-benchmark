@@ -31,25 +31,30 @@ std::uint64_t unrolled_4( const char* first, const char* last )
 
   for( ; last - first >= 4; first += 4 )
     {
-      enforce( ( first[ 0 ] >= '0' ) && ( first[ 0 ] <= '9' ) );
-      const std::uint64_t r1( pow10[ i++ ] * ( first[ 0 ] - '0' ) );
+      const auto d_0( unsigned( first[ 0 ] ) - '0' );
+      enforce( d_0 < 10 );
+      const std::uint64_t r1( pow10[ i++ ] * d_0 );
 
-      enforce( ( first[ 1 ] >= '0' ) && ( first[ 1 ] <= '9' ) );
-      const std::uint64_t r2( pow10[ i++ ] * ( first[ 1 ] - '0' ) );
+      const auto d_1( unsigned( first[ 1 ] ) - '0' );
+      enforce( d_1 < 10 );
+      const std::uint64_t r2( pow10[ i++ ] * d_1 );
       
-      enforce( ( first[ 2 ] >= '0' ) && ( first[ 2 ] <= '9' ) );
-      const std::uint64_t r3( pow10[ i++ ] * ( first[ 2 ] - '0' ) );
+      const auto d_2( unsigned( first[ 2 ] ) - '0' );
+      enforce( d_2 < 10 );
+      const std::uint64_t r3( pow10[ i++ ] * d_2 );
       
-      enforce( ( first[ 3 ] >= '0' ) && ( first[ 3 ] <= '9' ) );
-      const std::uint64_t r4( pow10[ i++ ] * ( first[ 3 ] - '0' ) );
+      const auto d_3( unsigned( first[ 3 ] ) - '0' );
+      enforce( d_3 < 10 );
+      const std::uint64_t r4( pow10[ i++ ] * d_3 );
 
       result += r1 + r2 + r3 + r4;
     }
 
   for( ; first != last; ++first )
     {
-      enforce( ( *first >= '0' ) && ( *first <= '9' ) );
-      result += pow10[ i++ ] * ( *first - '0' );
+      const auto d( unsigned( first[ 0 ] ) - '0' );
+      enforce( d < 10 );
+      result += pow10[ i++ ] * d;
     }
 
   return result;
