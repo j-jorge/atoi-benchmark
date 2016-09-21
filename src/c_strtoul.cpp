@@ -5,5 +5,5 @@
 std::uint64_t c_strtoul( const char* first, const char* last )
 {
   char* end;
-  return ::strtoul( first, &end, 10 );
+  return ::strtoull( first, &end, 10 );
 }
