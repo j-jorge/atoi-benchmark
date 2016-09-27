@@ -1,4 +1,5 @@
 #include "boost_lexical_cast.cpp"
+#include "boost_spirit_qi.cpp"
 #include "c_strtoul.cpp"
 #include "enforce.cpp"
 #include "naive.cpp"

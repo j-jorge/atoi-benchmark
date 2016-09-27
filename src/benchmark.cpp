@@ -2,6 +2,7 @@
 #include "c_strtoul.hpp"
 #include "std_strtoul.hpp"
 #include "boost_lexical_cast.hpp"
+#include "boost_spirit_qi.hpp"
 #include "naive.hpp"
 #include "recursive.hpp"
 #include "table_pow.hpp"
@@ -96,6 +97,13 @@ bench( std::uint64_t runs, const std::vector< std::string >& words )
   start = std::chrono::high_resolution_clock::now();
   result.time[ "boost::lexical-cast" ] =
     run_benchmark< &boost_lexical_cast >( runs, words );
+  std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
+            << '\n';
+  
+  std::cout << "boost::spirit::qi ";
+  start = std::chrono::high_resolution_clock::now();
+  result.time[ "boost::spirit::qi" ] =
+    run_benchmark< &boost_spirit_qi >( runs, words );
   std::cout << ( std::chrono::high_resolution_clock::now() - start ).count()
             << '\n';
   

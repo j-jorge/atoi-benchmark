@@ -12,6 +12,7 @@ add_executable(
 
   src/benchmark.cpp
   src/boost_lexical_cast.cpp
+  src/boost_spirit_qi.cpp
   src/c_strtoul.cpp
   src/enforce.cpp
   src/naive.cpp
